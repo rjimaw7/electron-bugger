@@ -3,7 +3,10 @@ import * as path from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { Log } from './models/Log'
 import { connectDB } from './config/db'
+import dotenv from 'dotenv'
 
+// Dot ENV
+dotenv.config()
 // Connect to DB
 connectDB()
 
@@ -23,9 +26,7 @@ function createWindow() {
       : {}),
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
-      sandbox: false,
-      contextIsolation: true,
-      nodeIntegration: true
+      sandbox: false
     }
   })
 
@@ -60,9 +61,7 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-
   createWindow()
-
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -70,17 +69,38 @@ app.whenReady().then(() => {
   })
 })
 
+// ON PAGE LOAD
+ipcMain.on('logs:load', () => sendLogs())
+
+// Create log
+ipcMain.on('logs:add', async (_, item) => {
+  try {
+    await Log.create(item)
+    sendLogs()
+  } catch (err) {
+    console.log(err)
+  }
+})
+
+// Delete Log
+ipcMain.on('logs:delete', async (_, id) => {
+  try {
+    await Log.findOneAndDelete({ _id: id })
+    sendLogs()
+  } catch (err) {
+    console.log(err)
+  }
+})
+
 const sendLogs = async () => {
   try {
     const logs = await Log.find().sort({ created: 1 })
 
-    console.log(logs)
+    mainWindow.webContents.send('logs:get', JSON.stringify(logs))
   } catch (err) {
     console.log(err)
   }
 }
-
-ipcMain.on('logs:load', () => sendLogs)
 
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits

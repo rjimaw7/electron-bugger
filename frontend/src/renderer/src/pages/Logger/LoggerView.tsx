@@ -6,8 +6,8 @@ import { LoggerViewContainer, LoggerViewHeader } from './Logger.list.styled'
 
 interface Props {
   data: ILogs[]
-  handleSubmit: (data: any) => void
-  onDelete: (id: number) => void
+  handleSubmit: (data: object) => void
+  onDelete: (id: string) => void
 }
 
 const LoggerView = ({ data, handleSubmit, onDelete }: Props) => {
@@ -19,7 +19,7 @@ const LoggerView = ({ data, handleSubmit, onDelete }: Props) => {
     return data.map((result) => {
       return {
         ...result,
-        key: result.id
+        key: result._id
       }
     })
   }, [data])
@@ -72,7 +72,7 @@ const LoggerView = ({ data, handleSubmit, onDelete }: Props) => {
                 Save
               </Button>
             </Space>
-            <Table columns={LOGGERLIST_COLUMN({ onDelete })} rowKey="id" dataSource={tableData} />
+            <Table columns={LOGGERLIST_COLUMN({ onDelete })} rowKey="_id" dataSource={tableData} />
           </Card>
         </Space>
       </LoggerViewContainer>

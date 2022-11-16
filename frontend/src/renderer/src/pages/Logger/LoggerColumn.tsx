@@ -4,7 +4,7 @@ import { Button, Space } from 'antd'
 import { ColumnsType } from 'antd/lib/table'
 
 interface Props {
-  onDelete: (id: number) => void
+  onDelete: (id: string) => void
 }
 
 export const LOGGERLIST_COLUMN = ({ onDelete }: Props): ColumnsType<ILogs> => {
@@ -40,10 +40,10 @@ export const LOGGERLIST_COLUMN = ({ onDelete }: Props): ColumnsType<ILogs> => {
     {
       key: 'actions',
       title: 'Actions',
-      render: (_, { id }) => {
+      render: (_, { _id }: ILogs) => {
         return (
           <Space>
-            <Button type="primary" onClick={() => onDelete(id)}>
+            <Button type="primary" onClick={() => onDelete(_id)}>
               Delete
             </Button>
           </Space>

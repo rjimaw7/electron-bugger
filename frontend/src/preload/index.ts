@@ -1,6 +1,5 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import path from 'path'
 
 // Custom APIs for renderer
 const api = {}
@@ -11,14 +10,6 @@ const api = {}
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-    contextBridge.exposeInMainWorld('path', {
-      join: (...args) => path.join(...args)
-    })
-    contextBridge.exposeInMainWorld('ipcRenderer', {
-      send: (channel, data) => ipcRenderer.send(channel, data),
-      on: (channel, func) => ipcRenderer.on(channel, (event, ...args) => func(...args))
-    })
   } catch (error) {
     console.error(error)
   }

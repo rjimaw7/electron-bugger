@@ -1,5 +1,5 @@
 export interface ILogs {
-  id: number
+  _id: string
   priority: string
   text: string
   user: string

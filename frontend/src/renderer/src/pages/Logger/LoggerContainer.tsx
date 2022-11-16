@@ -1,28 +1,26 @@
-import { SAMPLE_DATA } from '@renderer/constants/SAMPLE_DATA'
-import { useState, useEffect } from 'react'
 import LoggerView from './LoggerView'
-import { ipcRenderer } from 'electron'
+import { useEffect, useState } from 'react'
+
+declare const window: any
 
 const LoggerContainer = () => {
-  const [logs, setLogs] = useState(SAMPLE_DATA)
+  const [logs, setLogs] = useState<any[]>([])
 
-  const handleSubmit = (data: any) => {
-    data._id = Math.floor(Math.random() * 90000) + 10000
-    data.created = new Date().toString()
-    setLogs([...logs, data])
+  const handleSubmit = (data: object) => {
+    window.electron.ipcRenderer.send('logs:add', data)
   }
 
-  const handleDelete = (id: number) => {
-    setLogs(logs.filter((item) => item.id !== id))
+  const handleDelete = (id: string) => {
+    setLogs(logs.filter((item) => item._id !== id))
+    window.electron.ipcRenderer.send('logs:delete', id)
   }
 
-  // useEffect(() => {
-  //   ipcRenderer.send('logs:load')
-
-  //   ipcRenderer.on('logs:get', (e, logs) => {
-  //     setLogs(JSON.parse(logs))
-  //   })
-  // }, [])
+  useEffect(() => {
+    window.electron.ipcRenderer.send('logs:load')
+    window.electron.ipcRenderer.on('logs:get', (_, data) => {
+      setLogs(JSON.parse(data))
+    })
+  }, [])
 
   return <LoggerView data={logs} handleSubmit={handleSubmit} onDelete={handleDelete} />
 }
